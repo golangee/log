@@ -91,15 +91,15 @@ func (d simpleLogger) Trace(msg string, fields ...Field) {
 }
 
 func (d simpleLogger) Debug(msg string, fields ...Field) {
-	log.Println(green, "DEBUG", reset, d.format(msg, fields...))
+	log.Println(magenta, "DEBUG", reset, d.format(msg, fields...))
 }
 
 func (d simpleLogger) Info(msg string, fields ...Field) {
-	log.Println(yellow, "INFO ", reset, d.format(msg, fields...))
+	log.Println(blue, "INFO ", reset, d.format(msg, fields...))
 }
 
 func (d simpleLogger) Warn(msg string, fields ...Field) {
-	log.Println(magenta, "WARN ", reset, d.format(msg, fields...))
+	log.Println(yellow, "WARN ", reset, d.format(msg, fields...))
 }
 
 func (d simpleLogger) Error(msg string, fields ...Field) {
