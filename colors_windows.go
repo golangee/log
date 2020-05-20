@@ -14,14 +14,13 @@
 
 package log
 
-const reset   = ""
-const red     = ""
-const green   = ""
-const yellow  = ""
-const blue    = ""
-const purple  = ""
-const cyan    = ""
-const gray    = ""
-const white   = ""
-
-
+const reset = ""
+const red = ""
+const magenta = ""
+const green = ""
+const yellow = ""
+const blue = ""
+const purple = ""
+const cyan = ""
+const gray = ""
+const white = ""

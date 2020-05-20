@@ -33,6 +33,7 @@ type Logger interface {
 	Trace(msg string, fields ...Field)
 	Debug(msg string, fields ...Field)
 	Info(msg string, fields ...Field)
+	Warn(msg string, fields ...Field)
 	Error(msg string, fields ...Field)
 	Panic(msg string, fields ...Field)
 	Fatal(msg string, fields ...Field)
@@ -95,6 +96,10 @@ func (d simpleLogger) Debug(msg string, fields ...Field) {
 
 func (d simpleLogger) Info(msg string, fields ...Field) {
 	log.Println(yellow, "INFO ", reset, d.format(msg, fields...))
+}
+
+func (d simpleLogger) Warn(msg string, fields ...Field) {
+	log.Println(magenta, "WARN ", reset, d.format(msg, fields...))
 }
 
 func (d simpleLogger) Error(msg string, fields ...Field) {

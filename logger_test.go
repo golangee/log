@@ -10,5 +10,6 @@ func TestNew(t *testing.T) {
 	logger.Trace("hello world", Obj("id", 5))
 	logger.Info("hello world", Obj("id", 5))
 	logger.Debug("hello world", Obj("id", 5))
+	logger.Warn("hello world", Obj("id", 5))
 	With(logger, "sub", Obj("url", "abc")).Error("hello world", Obj("id", 5))
 }
