@@ -6,8 +6,9 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	New().Trace("hello world", Obj("id", 5))
-	New().Info("hello world", Obj("id", 5))
-	New().Debug("hello world", Obj("id", 5))
-	New().Error("hello world", Obj("id", 5))
+	logger := New("default")
+	logger.Trace("hello world", Obj("id", 5))
+	logger.Info("hello world", Obj("id", 5))
+	logger.Debug("hello world", Obj("id", 5))
+	With(logger, "sub", Obj("url", "abc")).Error("hello world", Obj("id", 5))
 }

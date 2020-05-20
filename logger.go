@@ -44,33 +44,38 @@ func Obj(key string, val interface{}) Field {
 }
 
 //nolint: gochecknoglobals
-var factory func(parent Logger, fields ...Field) Logger = func(parent Logger, fields ...Field) Logger {
+var factory func(parent Logger, name string, fields ...Field) Logger = func(parent Logger, name string, fields ...Field) Logger {
 	if sl, ok := parent.(simpleLogger); ok {
+		if sl.name != "" {
+			name = sl.name + "." + name
+		}
+
 		fields = append(sl.fields, fields...)
 	}
-	return simpleLogger{fields: fields}
+	return simpleLogger{fields: fields, name: name}
 }
 
 // SetFactory just set a new root logger factory. The parent may be nil.
-func SetFactory(f func(parent Logger, fields ...Field) Logger) {
+func SetFactory(f func(parent Logger, name string, fields ...Field) Logger) {
 	factory = f
 }
 
 // New uses the factory to create a new root logger. Implementations are encouraged to
 // return at least a reused default instance, if fields are empty.
-func New(fields ...Field) Logger {
-	return With(nil, fields...)
+func New(name string, fields ...Field) Logger {
+	return With(nil, name, fields...)
 }
 
 // With is the same as New just with a parent logger. The factory may decide what to
 // do, using a type assertion.
-func With(parent Logger, fields ...Field) Logger {
-	return factory(parent, fields...)
+func With(parent Logger, name string, fields ...Field) Logger {
+	return factory(parent, name, fields...)
 }
 
 // simpleLogger is a trivial implementation which just delegates to the go
 // logger.
 type simpleLogger struct {
+	name   string
 	fields []Field
 }
 
@@ -106,6 +111,13 @@ func (d simpleLogger) Fatal(msg string, fields ...Field) {
 
 func (d simpleLogger) format(msg string, fields ...Field) string {
 	sb := &strings.Builder{}
+	if d.name != "" {
+		sb.WriteString(gray)
+		sb.WriteString("logger:")
+		sb.WriteString(d.name)
+		sb.WriteString(reset)
+		sb.WriteString(" ")
+	}
 	sb.WriteString(msg)
 
 	for _, f := range append(d.fields, fields...) {
