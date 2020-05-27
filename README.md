@@ -1,4 +1,4 @@
-# log [![GoDoc](https://godoc.org/github.com/golangee/sql?status.svg)](http://godoc.org/github.com/golangee/sql)
+# log [![GoDoc](https://godoc.org/github.com/golangee/log?status.svg)](http://godoc.org/github.com/golangee/log)
 This is **NOT** another logger but a simple, clean and potentially
 dependency free logging facade. You can use it either by copy'n
 paste the interface definitions or use it just as a usual dependency.
