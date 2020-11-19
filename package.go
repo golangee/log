@@ -13,5 +13,8 @@
 // limitations under the License.
 
 // Package log  is not another logger but a simple, clean and potentially
-// dependency free logging facade.
+// dependency free logging facade. It combines ideas from Dave Cheney
+// (https://dave.cheney.net/2015/11/05/lets-talk-about-logging)
+// and Rob Pike (https://github.com/golang/glog) to provide a simple yet efficient
+// structured logging API.
 package log

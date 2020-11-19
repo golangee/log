@@ -14,35 +14,30 @@
 
 package log
 
-import (
-	"fmt"
-	"log"
-	"strings"
-)
-
 // Field is an alias to a key/value tuple, to break dependency.
 type Field = struct {
 	Key string
 	Val interface{}
 }
 
-// Logger provides the different log levels and field definitions.
+// Logger provides the abstraction for logging.
 // It is kept as simple as possible and to avoid recursive dependency
-// cycles by returns interfaces or concrete types.
+// cycles by using other interfaces or concrete types. It deliberately breaks with the conventional logger APIs, due
+// to the following considerations:
+//  * there are verbose developer specific logs which are not important or even bad for life system. You mostly
+//    even want that there is no cost for the log parameter propagation, which would cause even more harm like
+//    escaping values and heap-pressure, even if disabled. The only way to avoid this, is a guarded
+//    compile time constant evaluation.
+//  * anything else which is so important, that a developer is not sure to turn off in production, must not be guarded.
+//    Instead it is up to the administrator or software engineer to filter through the log in a structured way. Any
+//    error which does not kill your application, is just another kind of information.
+//  * any error which does break your post-variants and you cannot continue, should be logged (again, still info)
+//    either bail out with a runtime panic or an explicit os.Exit.
 type Logger interface {
-	Trace(msg string, fields ...Field)
-	Debug(msg string, fields ...Field)
-	Info(msg string, fields ...Field)
-	Warn(msg string, fields ...Field)
-	Error(msg string, fields ...Field)
-	Panic(msg string, fields ...Field)
-	Fatal(msg string, fields ...Field)
+	Info(fields ...Field)
 }
 
-// Obj is a factory function for creating a Field.
-func Obj(key string, val interface{}) Field {
-	return Field{key, val}
-}
+
 
 //nolint: gochecknoglobals
 var factory func(parent Logger, name string, fields ...Field) Logger = func(parent Logger, name string, fields ...Field) Logger {
@@ -71,68 +66,4 @@ func New(name string, fields ...Field) Logger {
 // do, using a type assertion.
 func With(parent Logger, name string, fields ...Field) Logger {
 	return factory(parent, name, fields...)
-}
-
-// simpleLogger is a trivial implementation which just delegates to the go
-// logger.
-type simpleLogger struct {
-	name   string
-	fields []Field
-}
-
-func (d simpleLogger) With(fields ...Field) Logger {
-	return simpleLogger{
-		fields: append(d.fields, fields...),
-	}
-}
-
-func (d simpleLogger) Trace(msg string, fields ...Field) {
-	log.Println(cyan, "TRACE", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Debug(msg string, fields ...Field) {
-	log.Println(magenta, "DEBUG", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Info(msg string, fields ...Field) {
-	log.Println(blue, "INFO ", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Warn(msg string, fields ...Field) {
-	log.Println(yellow, "WARN ", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Error(msg string, fields ...Field) {
-	log.Println(red, "ERROR", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Panic(msg string, fields ...Field) {
-	log.Panic(red, "PANIC", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) Fatal(msg string, fields ...Field) {
-	log.Fatal(red, "FATAL", reset, d.format(msg, fields...))
-}
-
-func (d simpleLogger) format(msg string, fields ...Field) string {
-	sb := &strings.Builder{}
-	if d.name != "" {
-		sb.WriteString(gray)
-		sb.WriteString("logger:")
-		sb.WriteString(d.name)
-		sb.WriteString(reset)
-		sb.WriteString(" ")
-	}
-	sb.WriteString(msg)
-
-	for _, f := range append(d.fields, fields...) {
-		sb.WriteString(" ")
-		sb.WriteString(gray)
-		sb.WriteString(f.Key)
-		sb.WriteString(":")
-		sb.WriteString(reset)
-		sb.WriteString(fmt.Sprintf("%v", f.Val))
-	}
-
-	return sb.String()
 }
