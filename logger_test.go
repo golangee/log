@@ -37,6 +37,8 @@ func TestNew(t *testing.T) {
 
 	fmt.Printf("=========\n")
 
+	log.WithFields(myLogger, ecs.Log("an.other.sub.subsystem")).Info(ecs.Msg("hello, from subsystem"))
+
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.Print), "my.logger")))
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintColored), "my.logger")))
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintStructured), "my.logger")))

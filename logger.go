@@ -78,9 +78,17 @@ func NewLogger(fields ...Field) Logger {
 	})
 }
 
-// With returns a logger func which invokes the more field funcs and appends the given fields to it before
+// WithFields just prepends the given fields before the actual logger field parameters will be passed.
+func WithFields(logger Logger, fields ...Field) Logger {
+	return LoggerFunc(func(f ...Field) {
+		tmp := append(fields, f...)
+		logger.Info(tmp...)
+	})
+}
+
+// WithFunc returns a logger func which invokes the more field funcs and appends the given fields to it before
 // invoking next.
-func With(next func(fields ...Field), more ...func() Field) func(fields ...Field) {
+func WithFunc(next func(fields ...Field), more ...func() Field) func(fields ...Field) {
 	return func(fields ...Field) {
 		tmp := make([]Field, 0, len(more))
 		for _, f := range more {
