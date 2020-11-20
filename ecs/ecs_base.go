@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package ecs
 
 import (
 	"time"
@@ -26,10 +26,10 @@ func Msg(msg string) Field {
 	}
 }
 
-// Timestamp is arguable, at the one hand the systems logger already captures the time, however when sending
+// Time is arguable, at the one hand the systems logger already captures the time, however when sending
 // and processing structured logs it may be useful to include an applications timestamp. The key is "@timestamp"
 // and the format is RFC3339. It describes the Date/time when the event originated.
-func Timestamp() Field {
+func Time() Field {
 	return Field{
 		Key: "@timestamp",
 		Val: time.Now().Format(time.RFC3339),

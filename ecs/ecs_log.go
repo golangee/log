@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package ecs
 
 const levelField = "log.level"
 
@@ -32,8 +32,8 @@ func Trace() Field {
 	}
 }
 
-// Dbg creates the according level field. The key is "log.level".
-func Dbg() Field {
+// Debug creates the according level field. The key is "log.level".
+func Debug() Field {
 	return Field{
 		Key: levelField,
 		Val: "debug",

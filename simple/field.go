@@ -12,15 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package simple
 
-const reset = ""
-const red = ""
-const magenta = ""
-const green = ""
-const yellow = ""
-const blue = ""
-const purple = ""
-const cyan = ""
-const gray = ""
-const white = ""
+// Field is an alias to a key/value tuple, to break dependency.
+type Field = struct {
+	Key string
+	Val interface{}
+}

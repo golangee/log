@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package ecs
 
 import (
 	"reflect"
 	"runtime/debug"
+	"strings"
 )
 
 // ErrStack is a factory to capture the current stack trace. This is quite expensive. The key is "error.stack_trace".
 func ErrStack() Field {
+	fullTrace := string(debug.Stack())
+	lines := strings.Split(fullTrace, "\n")
+	shortTrace := strings.Join(lines[6:], "\n")
 	return Field{
 		Key: "error.stack_trace",
-		Val: string(debug.Stack()),
+		Val: shortTrace,
 	}
 }
 

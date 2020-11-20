@@ -14,6 +14,12 @@
 
 package log
 
+import (
+	"github.com/golangee/log/ecs"
+	"github.com/golangee/log/simple"
+	log2 "log"
+)
+
 // Field is an alias to a key/value tuple, to break dependency.
 type Field = struct {
 	Key string
@@ -34,36 +40,63 @@ type Field = struct {
 //  * any error which does break your post-variants and you cannot continue, should be logged (again, still info)
 //    either bail out with a runtime panic or an explicit os.Exit.
 type Logger interface {
+	// Info processes and prints the fields.
 	Info(fields ...Field)
 }
 
+// LoggerFunc allows a function to become a Logger.
+type LoggerFunc func(fields ...Field)
 
+// Info prints the fields.
+func (f LoggerFunc) Info(fields ...Field) {
+	f(fields...)
+}
 
 //nolint: gochecknoglobals
-var factory func(parent Logger, name string, fields ...Field) Logger = func(parent Logger, name string, fields ...Field) Logger {
-	if sl, ok := parent.(simpleLogger); ok {
-		if sl.name != "" {
-			name = sl.name + "." + name
+var defaultFunc func(fields ...Field)
+
+func init() {
+	log2.SetFlags(0)
+	if IsDevelopment() {
+		defaultFunc = ecs.WithTime(simple.PrintColored)
+	} else {
+		defaultFunc = ecs.WithTime(simple.PrintStructured)
+	}
+
+}
+
+// SetDefault just sets a delegate for New. The default is created at package initialization time and
+// when executed from IDE it uses the simple.PrintColored and otherwise simple.PrintStructured logger.
+func SetDefault(f func(fields ...Field)) {
+	defaultFunc = f
+}
+
+// New uses the factory to create a new logger. The given fields are prepended.
+func New(fields ...Field) Logger {
+	return LoggerFunc(func(f ...Field) {
+		tmp := append(fields, f...)
+		defaultFunc(tmp...)
+	})
+}
+
+// With returns a logger func which invokes the more field funcs and appends the given fields to it before
+// invoking next.
+func With(next func(fields ...Field), more ...func() Field) func(fields ...Field) {
+	return func(fields ...Field) {
+		tmp := make([]Field, 0, len(more))
+		for _, f := range more {
+			tmp = append(tmp, f())
 		}
 
-		fields = append(sl.fields, fields...)
+		tmp = append(tmp, fields...)
+		next(tmp...)
 	}
-	return simpleLogger{fields: fields, name: name}
 }
 
-// SetFactory just set a new root logger factory. The parent may be nil.
-func SetFactory(f func(parent Logger, name string, fields ...Field) Logger) {
-	factory = f
-}
-
-// New uses the factory to create a new root logger. Implementations are encouraged to
-// return at least a reused default instance, if fields are empty.
-func New(name string, fields ...Field) Logger {
-	return With(nil, name, fields...)
-}
-
-// With is the same as New just with a parent logger. The factory may decide what to
-// do, using a type assertion.
-func With(parent Logger, name string, fields ...Field) Logger {
-	return factory(parent, name, fields...)
+// V is just a shortcut for the field construction. V is a short version of Value.
+func V(key string, val interface{}) Field {
+	return Field{
+		Key: key,
+		Val: val,
+	}
 }

@@ -1,5 +1,3 @@
-// +build !windows
-
 // Copyright 2020 Torben Schinke
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,21 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package simple
 
-const reset = "\033[0m"
-const red = "\033[31m"
-const magenta = "\033[35m"
-const green = "\033[32m"
-const yellow = "\033[33m"
+import (
+	"log"
+)
 
-//nolint
-const blue = "\033[34m"
+// The Print logger just prints the fields in exactly the given order and converts the values to string using
+// log.Print. You likely want to disable printing timestamps using log.SetFlags(0).
+func Print(fields ...Field) {
+	tmp := make([]interface{}, 0, len(fields))
+	for i, field := range fields {
+		tmp = append(tmp, field.Val)
+		if i < len(fields)-1 {
+			tmp = append(tmp, " ")
+		}
+	}
 
-//nolint
-const purple = "\033[35m"
-const cyan = "\033[36m"
-const gray = "\033[37m"
-
-//nolint
-const white = "\033[97m"
+	log.Print(tmp...)
+}

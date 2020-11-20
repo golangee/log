@@ -1,3 +1,5 @@
+// +build !windows
+
 // Copyright 2020 Torben Schinke
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,28 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package simple
 
-import (
-	"context"
-)
+const reset = "\033[0m"
+const red = "\033[31m"
+const magenta = "\033[35m"
+const green = "\033[32m"
+const yellow = "\033[33m"
 
-type ctxLogger struct{}
+//nolint
+const blue = "\033[34m"
 
-// WithLogger creates a new context with the given logger.
-func WithLogger(ctx context.Context, logger Logger) context.Context {
-	return context.WithValue(ctx, ctxLogger{}, logger)
-}
+//nolint
+const purple = "\033[35m"
+const cyan = "\033[36m"
+const gray = "\033[37m"
 
-// FromContext returns the contained logger or a new root logger. Context may be nil.
-func FromContext(ctx context.Context) Logger {
-	if ctx == nil {
-		return New()
-	}
-
-	if logger, ok := ctx.Value(ctxLogger{}).(Logger); ok {
-		return logger
-	}
-
-	return New()
-}
+//nolint
+const white = "\033[97m"

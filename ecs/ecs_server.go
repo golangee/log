@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package ecs
 
 // ServerAddress is ambiguous, may be the host name or the ip. The key is "server.address".
 func ServerAddress(adr string) Field {

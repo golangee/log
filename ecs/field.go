@@ -12,28 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package log
+package ecs
 
-import (
-	"context"
-)
-
-type ctxLogger struct{}
-
-// WithLogger creates a new context with the given logger.
-func WithLogger(ctx context.Context, logger Logger) context.Context {
-	return context.WithValue(ctx, ctxLogger{}, logger)
-}
-
-// FromContext returns the contained logger or a new root logger. Context may be nil.
-func FromContext(ctx context.Context) Logger {
-	if ctx == nil {
-		return New()
-	}
-
-	if logger, ok := ctx.Value(ctxLogger{}).(Logger); ok {
-		return logger
-	}
-
-	return New()
+// Field is an alias to a key/value tuple, to break dependency.
+type Field = struct {
+	Key string
+	Val interface{}
 }

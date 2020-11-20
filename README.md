@@ -1,33 +1,46 @@
-# log [![GoDoc](https://godoc.org/github.com/golangee/log?status.svg)](http://godoc.org/github.com/golangee/log)
-This is **NOT** another logger but a simple, clean and potentially
-dependency free logging facade. You can use it either by copy'n
-paste the interface definitions or use it just as a usual dependency.
+# log [![GoDoc](https://godoc.org/github.com/golangee/log?status.svg)](http://godoc.org/github.com/golangee/log) 
+There is more to it, than picking the next logger and call it a day, to get logging right.
+First, you have to be clear about your intention. What do you really need, logging, monitoring or
+tracing?
 
-It follows more or less the thoughts 
-from [Dave Cheney](https://dave.cheney.net/2015/11/05/lets-talk-about-logging) and 
-[zap](https://github.com/uber-go/zap/blob/master/FAQ.md#why-arent-logger-and-sugaredlogger-interfaces).
+## about logging
+Logging is about tracking events and their related data. Think about administrators
+as your customer. In the old days, log files where managed entirely by
+the application itself, e.g. by appending to existing files and rotating when required. Today,
+most operating systems provide advanced logging facilities attached to stdout. On Linux, this is
+likely the systemd journal. Thus, there is usually no need anymore to handle this in the applications'
+layer.
 
-However, even if this works out-of-the-box,
-you should use an implementation for it and not
-the build-in trivial logger implementation. Available implementations:
-* [log-zap](https://github.com/golangee/log-zap)
+However, the most important finding about logging is, that this is NOT the correct place to (solely) 
+inform about alerts, warnings or panic situations: consider, that nobody will read your logs. A common way
+to collect, inspect and filter log data is using [elastic search and kibana](https://www.elastic.co/de/).
 
-## Alternatives (or implementations)
-* [logrus](https://github.com/sirupsen/logrus) (★ 15k)
-* [zap](https://github.com/uber-go/zap) (★ 10k)
-* [zerolog](https://github.com/rs/zerolog) (★ 3k)
-* [apex](https://github.com/apex/log) (★ 1k)
+## about tracing
+Tracing is about following the programs' flow, typically from a user perspective. This
+may be accomplished by heavy and very verbose logging instruments, but indeed tools like 
+[Jaeger](https://github.com/jaegertracing/) are more suited for this.
+
+## about monitoring
+Monitoring is about instrumenting, collecting, aggregating and analyzing metrics to understand
+the behavior of your application and system, especially under load. A well known tool is 
+[Prometheus](https://prometheus.io/).
+
+## how to log right?
+If you are still here and are sure, that you need to log information, keep the following
+rules of thumb in mind:
+* avoid any vendor lock-in into existing logging frameworks by linking directly to them.
+* realize, that log levels do not make sense. Real *errors* will cause your application to halt
+just like a *panic* or an *os.Exit*. Anything else is an information, and
+the evaluation is in the eye of the beholder. It is worth to read the article from
+[Dave Cheney](https://dave.cheney.net/2015/11/05/lets-talk-about-logging).
+* logging hurts performance, and in high performance code, the argument propagation will still
+cause allocations and even worse - *escaping* to the heap. To enable verbose logs, 
+guard all according calls with compile time flags, which can eliminated entirely.
+* use a standard scheme for your fields, like the 
+[ECS field reference](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html).
 
 
-## interface design
-It just provides structured logging, anything else can be
-rendered from it. The interface is designed for easy integration
-and type safety but not for achieving the best performance.
-Abstractions (especially interfaces in Go) come with a cost.
-However, you may use the *log.Debug* compile time flag, to guard
-verbose developer messages. Also, there are a few helper methods
-defined to comply to the [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html).
-
+This is our recommended logging interface:
 ```go
 // Field is an alias to a key/value tuple, to break dependency.
 type Field = struct {
@@ -35,37 +48,51 @@ type Field = struct {
 	Val interface{}
 }
 
-// Logger provides the abstraction for logging.
-// It is kept as simple as possible and to avoid recursive dependency
-// cycles by using other interfaces or concrete types. It deliberately breaks with the conventional logger APIs, due
-// to the following considerations:
-//  * there are verbose developer specific logs which are not important or even bad for life system. You mostly
-//    even want that there is no cost for the log parameter propagation, which would cause even more harm like
-//    escaping values and heap-pressure, even if disabled. The only way to avoid this, is a guarded
-//    compile time constant evaluation.
-//  * anything else which is so important, that a developer is not sure to turn off in production, must not be guarded.
-//    Instead it is up to the administrator or software engineer to filter through the log in a structured way. Any
-//    error which does not kill your application, is just another kind of information.
-//  * any error which does break your post-variants and you cannot continue, should be logged (again, still info)
-//    either bail out with a runtime panic or an explicit os.Exit.
+// A Logger just takes some fields and may just print, serialize or send it anywhere.
 type Logger interface {
 	Info(fields ...Field)
 }
 ```
 
+This is our recommended guard:
+```go
+// +build !debug
+
+package log
+
+// Debug is a build tag determined at build time, so that the compiler can remove dead code.
+const Debug = false
+```
+
+## Available implementations
+* [logrus](https://github.com/sirupsen/logrus) (★ 15k)
+* [zap](https://github.com/uber-go/zap) (★ 10k)
+* [zerolog](https://github.com/rs/zerolog) (★ 3k)
+* [apex](https://github.com/apex/log) (★ 1k)
+
+
 ## usage
+If you want **zero** dependencies, just copy the *recommended logging interface* and provide injection
+capabilities through factory methods. Alternatively, this package provides a standard factory and 
+three simple but ready-to use logger implementations. To get the best of both worlds, we recommend to 
+just start with the dependency, and optimize later by setting a factory to any of the 
+implementations above, when required. Note, that the default logger is *simple.PrintColored*, if started
+from within your IDE and otherwise *simple.PrintStructured*. However, you can change it using 
+*SetDefault* to whatever you like. 
+
 
 ```go
 package main
 
 import (
   "github.com/golangee/log"
-  "github.com/golangee/log-zap"
+  "github.com/golangee/log/esc"
 )
 
 func main(){
- zap.Configure()
- log.New().Debug("hello world", log.Obj("id", 5))
+	myLogger := log.New(ecs.Log("my.logger"))
+	myLogger.Info(ecs.Msg("hello"))
+	myLogger.Info(ecs.Msg("world"))
 }
 ```
 
