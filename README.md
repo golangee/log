@@ -95,17 +95,17 @@ func main(){
 
     // prints from IDE: 2020-11-20T15:26:07+01:00 my.logger hello
     // prints in prod: {"@timestamp":"2020-11-20T15:26:07+01:00","log.level":"trace","log.logger":"my.logger","message":"hello"}
-    myLogger.Info(ecs.Msg("hello")) 
-    myLogger.Info(ecs.Msg("world"))
+    myLogger.Print(ecs.Msg("hello")) 
+    myLogger.Print(ecs.Msg("world"))
 
     // guard verbose and/or expensive logs
     if log.Debug{
-    	myLogger.Info(ecs.Msg("info point 1"), ecs.ErrStack()) 
+    	myLogger.Print(ecs.Msg("info point 1"), ecs.ErrStack()) 
     }
 
     // in your http middleware you should use the context
-    reqCtx := log.WithLogger(context.Background(), log.NewLogger(ecs.Log("my.request.logger")))
-    log.FromContext(reqCtx).Info(ecs.Msg("from a request"))
+    reqCtx := log.WithLogger(context.Background(), log.WithFields(myLogger, ecs.Log("my.request.logger")))
+    log.FromContext(reqCtx).Print(ecs.Msg("from a request"))
 }
 ```
 

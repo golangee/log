@@ -27,17 +27,17 @@ import (
 func TestNew(t *testing.T) {
 
 	myLogger := log.NewLogger(ecs.Log("my.logger"))
-	myLogger.Info(ecs.Msg("hello"))
-	myLogger.Info(ecs.Msg("world"))
+	myLogger.Print(ecs.Msg("hello"))
+	myLogger.Print(ecs.Msg("world"))
 
 	fmt.Printf("=========\n")
 
 	reqCtx := log.WithLogger(context.Background(), log.NewLogger(ecs.Log("my.request.logger")))
-	log.FromContext(reqCtx).Info(ecs.Msg("from a request"))
+	log.FromContext(reqCtx).Print(ecs.Msg("from a request"))
 
 	fmt.Printf("=========\n")
 
-	log.WithFields(myLogger, ecs.Log("an.other.sub.subsystem")).Info(ecs.Msg("hello, from subsystem"))
+	log.WithFields(myLogger, ecs.Log("an.other.sub.subsystem")).Print(ecs.Msg("hello, from subsystem"))
 
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.Print), "my.logger")))
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintColored), "my.logger")))
@@ -45,10 +45,10 @@ func TestNew(t *testing.T) {
 }
 
 func logSomeStuff(logger log.Logger) {
-	logger.Info(ecs.Trace(), ecs.Msg("hello"))
-	logger.Info(ecs.Debug(), ecs.Msg("hello"))
-	logger.Info(ecs.Info(), ecs.Msg("hello"))
-	logger.Info(ecs.Warn(), ecs.Msg("hello"))
-	logger.Info(ecs.Error(), ecs.Msg("hello"), ecs.ErrStack())
+	logger.Print(ecs.Trace(), ecs.Msg("hello"))
+	logger.Print(ecs.Debug(), ecs.Msg("hello"))
+	logger.Print(ecs.Info(), ecs.Msg("hello"))
+	logger.Print(ecs.Warn(), ecs.Msg("hello"))
+	logger.Print(ecs.Error(), ecs.Msg("hello"), ecs.ErrStack())
 	fmt.Print("\n\n---\n\n")
 }

@@ -40,15 +40,15 @@ type Field = struct {
 //  * any error which does break your post-variants and you cannot continue, should be logged (again, still info)
 //    either bail out with a runtime panic or an explicit os.Exit.
 type Logger interface {
-	// Info processes and prints the fields.
-	Info(fields ...Field)
+	// Print processes and prints the fields.
+	Print(fields ...Field)
 }
 
 // LoggerFunc allows a function to become a Logger.
 type LoggerFunc func(fields ...Field)
 
 // Info prints the fields.
-func (f LoggerFunc) Info(fields ...Field) {
+func (f LoggerFunc) Print(fields ...Field) {
 	f(fields...)
 }
 
@@ -82,7 +82,7 @@ func NewLogger(fields ...Field) Logger {
 func WithFields(logger Logger, fields ...Field) Logger {
 	return LoggerFunc(func(f ...Field) {
 		tmp := append(fields, f...)
-		logger.Info(tmp...)
+		logger.Print(tmp...)
 	})
 }
 
