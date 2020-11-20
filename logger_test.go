@@ -16,6 +16,7 @@
 package log_test
 
 import (
+	"context"
 	"fmt"
 	"github.com/golangee/log"
 	"github.com/golangee/log/ecs"
@@ -25,9 +26,14 @@ import (
 
 func TestNew(t *testing.T) {
 
-	myLogger := log.New(ecs.Log("my.logger"))
+	myLogger := log.NewLogger(ecs.Log("my.logger"))
 	myLogger.Info(ecs.Msg("hello"))
 	myLogger.Info(ecs.Msg("world"))
+
+	fmt.Printf("=========\n")
+
+	reqCtx := log.WithLogger(context.Background(), log.NewLogger(ecs.Log("my.request.logger")))
+	log.FromContext(reqCtx).Info(ecs.Msg("from a request"))
 
 	fmt.Printf("=========\n")
 

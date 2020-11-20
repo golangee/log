@@ -22,8 +22,8 @@ may be accomplished by heavy and very verbose logging instruments, but indeed to
 
 ## about monitoring
 Monitoring is about instrumenting, collecting, aggregating and analyzing metrics to understand
-the behavior of your application and system, especially under load. A well known tool is 
-[Prometheus](https://prometheus.io/).
+the behavior of your application and system, especially under load. Well known tools are 
+[Prometheus](https://prometheus.io/) and [Grafana](https://grafana.com/).
 
 ## how to log right?
 If you are still here and are sure, that you need to log information, keep the following
@@ -35,7 +35,7 @@ the evaluation is in the eye of the beholder. It is worth to read the article fr
 [Dave Cheney](https://dave.cheney.net/2015/11/05/lets-talk-about-logging).
 * logging hurts performance, and in high performance code, the argument propagation will still
 cause allocations and even worse - *escaping* to the heap. To enable verbose logs, 
-guard all according calls with compile time flags, which can eliminated entirely.
+guard all according calls with compile time flags, so that the actual calls can get eliminated entirely.
 * use a standard scheme for your fields, like the 
 [ECS field reference](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html).
 
@@ -86,13 +86,26 @@ package main
 
 import (
   "github.com/golangee/log"
-  "github.com/golangee/log/esc"
+  "github.com/golangee/log/ecs"
+  "context"
 )
 
 func main(){
-	myLogger := log.New(ecs.Log("my.logger"))
-	myLogger.Info(ecs.Msg("hello"))
-	myLogger.Info(ecs.Msg("world"))
+    myLogger := log.NewLogger(ecs.Log("my.logger"))
+
+    // prints from IDE: 2020-11-20T15:26:07+01:00 my.logger hello
+    // prints in prod: {"@timestamp":"2020-11-20T15:26:07+01:00","log.level":"trace","log.logger":"my.logger","message":"hello"}
+    myLogger.Info(ecs.Msg("hello")) 
+    myLogger.Info(ecs.Msg("world"))
+
+    // guard verbose and/or expensive logs
+    if log.Debug{
+    	myLogger.Info(ecs.Msg("info point 1"), ecs.ErrStack()) 
+    }
+
+    // in your http middleware you should use the context
+    reqCtx := log.WithLogger(context.Background(), log.NewLogger(ecs.Log("my.request.logger")))
+    log.FromContext(reqCtx).Info(ecs.Msg("from a request"))
 }
 ```
 

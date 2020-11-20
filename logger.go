@@ -65,14 +65,13 @@ func init() {
 
 }
 
-// SetDefault just sets a delegate for New. The default is created at package initialization time and
-// when executed from IDE it uses the simple.PrintColored and otherwise simple.PrintStructured logger.
+// SetDefault just sets a delegate for NewLogger.
 func SetDefault(f func(fields ...Field)) {
 	defaultFunc = f
 }
 
-// New uses the factory to create a new logger. The given fields are prepended.
-func New(fields ...Field) Logger {
+// NewLogger uses the factory to create a new logger. The given fields are prepended.
+func NewLogger(fields ...Field) Logger {
 	return LoggerFunc(func(f ...Field) {
 		tmp := append(fields, f...)
 		defaultFunc(tmp...)

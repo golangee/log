@@ -17,4 +17,9 @@
 // (https://dave.cheney.net/2015/11/05/lets-talk-about-logging)
 // and Rob Pike (https://github.com/golang/glog) to provide a simple yet efficient
 // structured logging API.
+//
+// The default logger is created at package initialization time and
+// if your application is executed from the IDE it uses the simple.PrintColored and otherwise
+// simple.PrintStructured logger. Note, that the simple loggers use the standard library log.Print
+// function and disables their time printing (log.SetFlags(0)).
 package log

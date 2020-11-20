@@ -28,12 +28,12 @@ func WithLogger(ctx context.Context, logger Logger) context.Context {
 // FromContext returns the contained logger or a new root logger. Context may be nil.
 func FromContext(ctx context.Context) Logger {
 	if ctx == nil {
-		return New()
+		return NewLogger()
 	}
 
 	if logger, ok := ctx.Value(ctxLogger{}).(Logger); ok {
 		return logger
 	}
 
-	return New()
+	return NewLogger()
 }
