@@ -42,6 +42,14 @@ guard all according calls with compile time flags, so that the actual calls can 
 
 This is our recommended logging interface:
 ```go
+// Field is an interface to an explicit key/value tuple, to be clear about structured information.
+type Field interface {
+    // Key returns the unique key of this structured Field.
+    Key() string
+    // Value returns an arbitrary message, which itself may be structured.
+    Value() interface{}
+}
+
 type Logger interface {
     // Println processes and prints the arguments as fields. The interpretation and formatting depends on the
     // concrete implementation and may range from fmt.Println over log.Println to a full structured logger.
