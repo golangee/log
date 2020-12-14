@@ -89,15 +89,15 @@ import (
 )
 
 func main(){
-	// prints from IDE: 2020-12-14T10:46:37+01:00 my.logger hello world
-	// prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","log.logger":"my.logger","message":"hello world"}
-	log.Println("hello world")
+    // prints from IDE: 2020-12-14T10:46:37+01:00 my.logger hello world
+    // prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","log.logger":"my.logger","message":"hello world"}
+    log.Println("hello world")
 
-	// prints from IDE: 2020-12-14T10:46:37+01:00 my.logger INFO auto message https://automatic.url automatic error *errors.errorString
-	// prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","error.message":"automatic error","error.type":"*errors.errorString","log.level":"info","log.logger":"my.logger","message":"auto message","url.path":"https://automatic.url"}
-	log.Println("info", "auto message", "https://automatic.url", fmt.Errorf("automatic error"))
+    // prints from IDE: 2020-12-14T10:46:37+01:00 my.logger INFO auto message https://automatic.url automatic error *errors.errorString
+    // prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","error.message":"automatic error","error.type":"*errors.errorString","log.level":"info","log.logger":"my.logger","message":"auto message","url.path":"https://automatic.url"}
+    log.Println("info", "auto message", "https://automatic.url", fmt.Errorf("automatic error"))
 	
-	// how to create custom logger setup
+    // how to create custom logger setup
     myLogger := log.NewLogger(ecs.Log("my.logger"))
 
     // prints from IDE: 2020-11-20T15:26:07+01:00 my.logger hello
