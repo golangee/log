@@ -15,19 +15,17 @@
 package simple
 
 import (
+	"github.com/golangee/log/field"
 	"log"
 )
 
 // The Print logger just prints the fields in exactly the given order and converts the values to string using
 // log.Print. You likely want to disable printing timestamps using log.SetFlags(0).
-func Print(fields ...Field) {
+func Print(v ...interface{}) {
+	fields := field.Fields(v...)
 	tmp := make([]interface{}, 0, len(fields))
-	for i, field := range fields {
-		tmp = append(tmp, field.Val)
-		if i < len(fields)-1 {
-			tmp = append(tmp, " ")
-		}
+	for _, f := range fields {
+		tmp = append(tmp, f)
 	}
-
-	log.Print(tmp...)
+	log.Println(tmp...)
 }

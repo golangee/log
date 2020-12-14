@@ -17,7 +17,7 @@ package ecs
 // Path of the request. The key name is "url.path".
 func URLPath(p string) Field {
 	return Field{
-		Key: "url.path",
-		Val: p,
+		K: "url.path",
+		V: p,
 	}
 }

@@ -27,28 +27,32 @@ import (
 func TestNew(t *testing.T) {
 
 	myLogger := log.NewLogger(ecs.Log("my.logger"))
-	myLogger.Print(ecs.Msg("hello"))
-	myLogger.Print(ecs.Msg("world"))
+	myLogger.Println(ecs.Msg("hello"))
+	myLogger.Println(ecs.Msg("world"))
 
 	fmt.Printf("=========\n")
 
 	reqCtx := log.WithLogger(context.Background(), log.NewLogger(ecs.Log("my.request.logger")))
-	log.FromContext(reqCtx).Print(ecs.Msg("from a request"))
+	log.FromContext(reqCtx).Println(ecs.Msg("from a request"))
 
 	fmt.Printf("=========\n")
 
-	log.WithFields(myLogger, ecs.Log("an.other.sub.subsystem")).Print(ecs.Msg("hello, from subsystem"))
+	log.WithFields(myLogger, ecs.Log("an.other.sub.subsystem")).Println(ecs.Msg("hello, from subsystem"))
 
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.Print), "my.logger")))
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintColored), "my.logger")))
 	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintStructured), "my.logger")))
+	logSomeStuff(log.LoggerFunc(ecs.WithName(ecs.WithTime(simple.PrintStructured), "my.logger")))
 }
 
 func logSomeStuff(logger log.Logger) {
-	logger.Print(ecs.Trace(), ecs.Msg("hello"))
-	logger.Print(ecs.Debug(), ecs.Msg("hello"))
-	logger.Print(ecs.Info(), ecs.Msg("hello"))
-	logger.Print(ecs.Warn(), ecs.Msg("hello"))
-	logger.Print(ecs.Error(), ecs.Msg("hello"), ecs.ErrStack())
+	logger.Println(ecs.Trace(), ecs.Msg("hello"))
+	logger.Println(ecs.Debug(), ecs.Msg("hello"))
+	logger.Println(ecs.Info(), ecs.Msg("hello"))
+	logger.Println(ecs.Warn(), ecs.Msg("hello"))
+	logger.Println(ecs.Error(), ecs.Msg("hello"), ecs.ErrStack())
+	// the following texts are auto-detected by default
+	logger.Println("hello world")
+	logger.Println("info", "auto message", "https://automatic.url", fmt.Errorf("automatic error"))
 	fmt.Print("\n\n---\n\n")
 }

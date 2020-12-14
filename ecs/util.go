@@ -1,9 +1,9 @@
 package ecs
 
 // with is a copy and breaks the cycle
-func with(next func(fields ...Field), more ...func() Field) func(fields ...Field) {
-	return func(fields ...Field) {
-		tmp := make([]Field, 0, len(more))
+func with(next func(fields ...interface{}), more ...func() interface{}) func(fields ...interface{}) {
+	return func(fields ...interface{}) {
+		tmp := make([]interface{}, 0, len(more))
 		for _, f := range more {
 			tmp = append(tmp, f())
 		}
@@ -14,13 +14,15 @@ func with(next func(fields ...Field), more ...func() Field) func(fields ...Field
 }
 
 // WithName returns a new logger function which always prepends the name.
-func WithName(next func(fields ...Field), name string) func(fields ...Field) {
-	return with(next, func() Field {
+func WithName(next func(fields ...interface{}), name string) func(fields ...interface{}) {
+	return with(next, func() interface{} {
 		return Log(name)
 	})
 }
 
 // WithTime returns a new logger function which always prepends the time.
-func WithTime(next func(fields ...Field)) func(fields ...Field) {
-	return with(next, Time)
+func WithTime(next func(fields ...interface{})) func(fields ...interface{}) {
+	return with(next, func() interface{} {
+		return Time
+	})
 }

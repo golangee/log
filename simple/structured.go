@@ -17,16 +17,29 @@ package simple
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/golangee/log/field"
 	"log"
 	"runtime/debug"
 )
 
 // The PrintStructured logger takes the fields, removes duplicates (only the last is kept), and prints
-// a json serialization as a single line using log.Print. The fields are sorted ascending by name.
-func PrintStructured(fields ...Field) {
+// a json serialization as a single line using log.Print. The fields are sorted ascending by name. A special
+// treatment is for message fields, which are simply fmt.Sprint'ed.
+func PrintStructured(v ...interface{}) {
+	fields := field.Fields(v...)
 	tmp := make(map[string]interface{})
-	for _, field := range fields {
-		tmp[field.Key] = field.Val
+	for _, f := range fields {
+		if f.K == "message" {
+			s, ok := tmp[f.K]
+			if ok {
+				tmp[f.K] = fmt.Sprint(s, f.V)
+			} else {
+				tmp[f.K] = f.V
+			}
+		} else {
+			tmp[f.K] = f.V
+		}
+
 	}
 
 	buf, err := json.Marshal(tmp)

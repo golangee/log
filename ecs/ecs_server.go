@@ -17,31 +17,31 @@ package ecs
 // ServerAddress is ambiguous, may be the host name or the ip. The key is "server.address".
 func ServerAddress(adr string) Field {
 	return Field{
-		Key: "server.address",
-		Val: adr,
+		K: "server.address",
+		V: adr,
 	}
 }
 
 // ServerAddress is the server domain. The key is "server.domain".
 func ServerDomain(adr string) Field {
 	return Field{
-		Key: "server.domain",
-		Val: adr,
+		K: "server.domain",
+		V: adr,
 	}
 }
 
 // ServerIp is the server ip. The key is "server.ip".
 func ServerIp(adr string) Field {
 	return Field{
-		Key: "server.ip",
-		Val: adr,
+		K: "server.ip",
+		V: adr,
 	}
 }
 
 // ServerPort is the server ip. The key is "server.port".
 func ServerPort(port int) Field {
 	return Field{
-		Key: "server.port",
-		Val: port,
+		K: "server.port",
+		V: port,
 	}
 }

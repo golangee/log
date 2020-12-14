@@ -16,6 +16,7 @@ package simple
 
 import (
 	"fmt"
+	"github.com/golangee/log/field"
 	"log"
 	"strings"
 )
@@ -26,15 +27,16 @@ const intendTrace = len("2020-11-20T10:54:11+01:00")
 // log.Print. You likely want to disable printing timestamps using log.SetFlags(0).
 // The console print is scattered with color commands and probably only nice for your developer
 // machine.
-func PrintColored(fields ...Field) {
-	tmp := make([]interface{}, 0, len(fields))
+func PrintColored(v ...interface{}) {
+	tmp := make([]interface{}, 0, len(v))
+	fields := field.Fields(v...)
 	messageColor := ""
 	for i, field := range fields {
 		needsReset := false
 
-		switch field.Key {
+		switch field.K {
 		case "log.level":
-			if str, ok := field.Val.(string); ok {
+			if str, ok := field.V.(string); ok {
 				needsReset = true
 				switch str {
 				case "debug":
@@ -48,8 +50,8 @@ func PrintColored(fields ...Field) {
 				default:
 					messageColor = red
 				}
-				if str, ok := field.Val.(string); ok {
-					field.Val = strings.ToUpper(str)
+				if str, ok := field.V.(string); ok {
+					field.V = strings.ToUpper(str)
 				}
 
 				tmp = append(tmp, messageColor)
@@ -65,8 +67,8 @@ func PrintColored(fields ...Field) {
 
 			needsReset = true
 			tmp = append(tmp, red)
-			if str, ok := field.Val.(string); ok {
-				field.Val = strings.ReplaceAll(str, "\n", "\n"+indent.String()+red)
+			if str, ok := field.V.(string); ok {
+				field.V = strings.ReplaceAll(str, "\n", "\n"+indent.String()+red)
 			}
 		case "message":
 			if messageColor != "" {
@@ -75,7 +77,7 @@ func PrintColored(fields ...Field) {
 			}
 		}
 
-		tmp = append(tmp, fmt.Sprint(field.Val))
+		tmp = append(tmp, fmt.Sprint(field.V))
 
 		if needsReset {
 			tmp = append(tmp, reset)

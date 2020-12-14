@@ -14,8 +14,7 @@
 
 package ecs
 
+import "github.com/golangee/log/field"
+
 // Field is an alias to a key/value tuple, to break dependency.
-type Field = struct {
-	Key string
-	Val interface{}
-}
+type Field = field.DefaultField

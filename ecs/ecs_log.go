@@ -19,63 +19,63 @@ const levelField = "log.level"
 // Log applies the loggers name, like org.elasticsearch.bootstrap.Bootstrap.
 func Log(name string) Field {
 	return Field{
-		Key: "log.logger",
-		Val: name,
+		K: "log.logger",
+		V: name,
 	}
 }
 
 // Trace creates the according level field. The key is "log.level".
 func Trace() Field {
 	return Field{
-		Key: levelField,
-		Val: "trace",
+		K: levelField,
+		V: "trace",
 	}
 }
 
 // Debug creates the according level field. The key is "log.level".
 func Debug() Field {
 	return Field{
-		Key: levelField,
-		Val: "debug",
+		K: levelField,
+		V: "debug",
 	}
 }
 
 // Info creates the according level field. The key is "log.level".
 func Info() Field {
 	return Field{
-		Key: levelField,
-		Val: "info",
+		K: levelField,
+		V: "info",
 	}
 }
 
 // Warn creates the according level field. The key is "log.level".
 func Warn() Field {
 	return Field{
-		Key: levelField,
-		Val: "warn",
+		K: levelField,
+		V: "warn",
 	}
 }
 
 // Error creates the according level field. The key is "log.level".
 func Error() Field {
 	return Field{
-		Key: levelField,
-		Val: "error",
+		K: levelField,
+		V: "error",
 	}
 }
 
 // Fatal creates the according level field. The key is "log.level".
 func Fatal() Field {
 	return Field{
-		Key: levelField,
-		Val: "fatal",
+		K: levelField,
+		V: "fatal",
 	}
 }
 
 // Panic creates the according level field. The key is "log.level".
 func Panic() Field {
 	return Field{
-		Key: levelField,
-		Val: "panic",
+		K: levelField,
+		V: "panic",
 	}
 }

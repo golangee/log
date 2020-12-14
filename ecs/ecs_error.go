@@ -26,19 +26,19 @@ func ErrStack() Field {
 	lines := strings.Split(fullTrace, "\n")
 	shortTrace := strings.Join(lines[6:], "\n")
 	return Field{
-		Key: "error.stack_trace",
-		Val: shortTrace,
+		K: "error.stack_trace",
+		V: shortTrace,
 	}
 }
 
 // ErrMsg creates a field to note an error message. The key is "error.message". It captures err.String().
 func ErrMsg(err error) Field {
 	f := Field{
-		Key: "error.message",
+		K: "error.message",
 	}
 
 	if err != nil {
-		f.Val = err.Error()
+		f.V = err.Error()
 	}
 
 	return f
@@ -48,11 +48,11 @@ func ErrMsg(err error) Field {
 // fmt.Errorf this is mostly useless.
 func ErrType(err error) Field {
 	f := Field{
-		Key: "error.type",
+		K: "error.type",
 	}
 
 	if err != nil {
-		f.Val = reflect.TypeOf(err).String()
+		f.V = reflect.TypeOf(err).String()
 	}
 
 	return f

@@ -42,15 +42,11 @@ guard all according calls with compile time flags, so that the actual calls can 
 
 This is our recommended logging interface:
 ```go
-// Field is an alias to a key/value tuple, to break dependency.
-type Field = struct {
-	Key string
-	Val interface{}
-}
-
-// A Logger just takes some fields and may just print, serialize or send it anywhere.
 type Logger interface {
-	Info(fields ...Field)
+    // Println processes and prints the arguments as fields. The interpretation and formatting depends on the
+    // concrete implementation and may range from fmt.Println over log.Println to a full structured logger.
+    // Implementations are encouraged to type-switch on each field.
+    Println(fields ...interface{})
 }
 ```
 
@@ -80,6 +76,8 @@ implementations above, when required. Note, that the default logger is *simple.P
 from within your IDE and otherwise *simple.PrintStructured*. However, you can change it using 
 *SetDefault* to whatever you like. 
 
+There are also the following default special treatments:
+* 
 
 ```go
 package main
@@ -91,21 +89,30 @@ import (
 )
 
 func main(){
+	// prints from IDE: 2020-12-14T10:46:37+01:00 my.logger hello world
+	// prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","log.logger":"my.logger","message":"hello world"}
+	log.Println("hello world")
+
+	// prints from IDE: 2020-12-14T10:46:37+01:00 my.logger INFO auto message https://automatic.url automatic error *errors.errorString
+	// prints in prod: {"@timestamp":"2020-12-14T10:46:37+01:00","error.message":"automatic error","error.type":"*errors.errorString","log.level":"info","log.logger":"my.logger","message":"auto message","url.path":"https://automatic.url"}
+	log.Println("info", "auto message", "https://automatic.url", fmt.Errorf("automatic error"))
+	
+	// how to create custom logger setup
     myLogger := log.NewLogger(ecs.Log("my.logger"))
 
     // prints from IDE: 2020-11-20T15:26:07+01:00 my.logger hello
     // prints in prod: {"@timestamp":"2020-11-20T15:26:07+01:00","log.level":"trace","log.logger":"my.logger","message":"hello"}
-    myLogger.Print(ecs.Msg("hello")) 
-    myLogger.Print(ecs.Msg("world"))
+    myLogger.Println(ecs.Msg("hello")) 
+    myLogger.Println(ecs.Msg("world"))
 
     // guard verbose and/or expensive logs
     if log.Debug{
-    	myLogger.Print(ecs.Msg("info point 1"), ecs.ErrStack()) 
+    	myLogger.Println(ecs.Msg("info point 1"), ecs.ErrStack()) 
     }
 
     // in your http middleware you should use the context
     reqCtx := log.WithLogger(context.Background(), log.WithFields(myLogger, ecs.Log("my.request.logger")))
-    log.FromContext(reqCtx).Print(ecs.Msg("from a request"))
+    log.FromContext(reqCtx).Println(ecs.Msg("from a request"))
 }
 ```
 

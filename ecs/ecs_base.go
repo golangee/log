@@ -21,33 +21,33 @@ import (
 // Msg creates a message field. The key is "message". It contains an optimized view for humans.
 func Msg(msg string) Field {
 	return Field{
-		Key: "message",
-		Val: msg,
+		K: "message",
+		V: msg,
 	}
 }
 
-// Time is arguable, at the one hand the systems logger already captures the time, however when sending
+// Time is arguable: at the one hand the systems logger already captures the time, however when sending
 // and processing structured logs it may be useful to include an applications timestamp. The key is "@timestamp"
 // and the format is RFC3339. It describes the Date/time when the event originated.
 func Time() Field {
 	return Field{
-		Key: "@timestamp",
-		Val: time.Now().Format(time.RFC3339),
+		K: "@timestamp",
+		V: time.Now().Format(time.RFC3339),
 	}
 }
 
 // Tags is a list of keywords used to tag each event. The key is "tags".
 func Tags(tags ...string) Field {
 	return Field{
-		Key: "tags",
-		Val: tags,
+		K: "tags",
+		V: tags,
 	}
 }
 
 // Labels are un-nestable custom key/value pairs. The key is "labels".
 func Labels(labels map[string]string) Field {
 	return Field{
-		Key: "tags",
-		Val: labels,
+		K: "tags",
+		V: labels,
 	}
 }

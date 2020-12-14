@@ -16,14 +16,17 @@ package log
 
 import (
 	"github.com/golangee/log/ecs"
+	"github.com/golangee/log/field"
 	"github.com/golangee/log/simple"
 	log2 "log"
 )
 
-// Field is an alias to a key/value tuple, to break dependency.
-type Field = struct {
-	Key string
-	Val interface{}
+// Field is an interface to an explicit key/value tuple, to be clear about structured information.
+type Field interface {
+	// Key returns the unique key of this structured Field.
+	Key() string
+	// Value returns an arbitrary message, which itself may be structured.
+	Value() interface{}
 }
 
 // Logger provides the abstraction for logging.
@@ -40,20 +43,22 @@ type Field = struct {
 //  * any error which does break your post-variants and you cannot continue, should be logged (again, still info)
 //    either bail out with a runtime panic or an explicit os.Exit.
 type Logger interface {
-	// Print processes and prints the fields.
-	Print(fields ...Field)
+	// Println processes and prints the arguments as fields. The interpretation and formatting depends on the
+	// concrete implementation and may range from fmt.Println over log.Println to a full structured logger.
+	// Implementations are encouraged to type-switch on each field.
+	Println(fields ...interface{})
 }
 
 // LoggerFunc allows a function to become a Logger.
-type LoggerFunc func(fields ...Field)
+type LoggerFunc func(fields ...interface{})
 
-// Info prints the fields.
-func (f LoggerFunc) Print(fields ...Field) {
+// Println prints the fields by delegating to the function itself.
+func (f LoggerFunc) Println(fields ...interface{}) {
 	f(fields...)
 }
 
 //nolint: gochecknoglobals
-var defaultFunc func(fields ...Field)
+var defaultFunc LoggerFunc
 
 func init() {
 	log2.SetFlags(0)
@@ -66,31 +71,44 @@ func init() {
 }
 
 // SetDefault just sets a delegate for NewLogger.
-func SetDefault(f func(fields ...Field)) {
+func SetDefault(f func(fields ...interface{})) {
 	defaultFunc = f
 }
 
 // NewLogger uses the factory to create a new logger. The given fields are prepended.
-func NewLogger(fields ...Field) Logger {
-	return LoggerFunc(func(f ...Field) {
+func NewLogger(fields ...interface{}) Logger {
+	if len(fields) == 0 {
+		return defaultFunc
+	}
+
+	return LoggerFunc(func(f ...interface{}) {
 		tmp := append(fields, f...)
 		defaultFunc(tmp...)
 	})
 }
 
+// Println delegates directly to the default configured logger. See also Logger, NewLogger and SetDefault.
+func Println(fields ...interface{}) {
+	defaultFunc(fields...)
+}
+
 // WithFields just prepends the given fields before the actual logger field parameters will be passed.
-func WithFields(logger Logger, fields ...Field) Logger {
-	return LoggerFunc(func(f ...Field) {
+func WithFields(logger Logger, fields ...interface{}) Logger {
+	if len(fields) == 0 {
+		return logger
+	}
+
+	return LoggerFunc(func(f ...interface{}) {
 		tmp := append(fields, f...)
-		logger.Print(tmp...)
+		logger.Println(tmp...)
 	})
 }
 
 // WithFunc returns a logger func which invokes the more field funcs and appends the given fields to it before
 // invoking next.
-func WithFunc(next func(fields ...Field), more ...func() Field) func(fields ...Field) {
-	return func(fields ...Field) {
-		tmp := make([]Field, 0, len(more))
+func WithFunc(next func(fields ...interface{}), more ...func() interface{}) func(fields ...interface{}) {
+	return func(fields ...interface{}) {
+		tmp := make([]interface{}, 0, len(more))
 		for _, f := range more {
 			tmp = append(tmp, f())
 		}
@@ -100,10 +118,10 @@ func WithFunc(next func(fields ...Field), more ...func() Field) func(fields ...F
 	}
 }
 
-// V is just a shortcut for the field construction. V is a short version of Value.
-func V(key string, val interface{}) Field {
-	return Field{
-		Key: key,
-		Val: val,
+// V is just a shortcut for a field construction. V is a short version of Value.
+func V(key string, val interface{}) field.DefaultField {
+	return field.DefaultField{
+		K: key,
+		V: val,
 	}
 }
